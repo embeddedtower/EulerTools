@@ -1,6 +1,7 @@
 module EulerTools.Number
 ( countDivisors
 , totient
+, totientFromDivs
 ) where
 
 import Data.List           (group)
