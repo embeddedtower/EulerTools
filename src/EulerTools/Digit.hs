@@ -1,5 +1,6 @@
 module EulerTools.Digit
 ( getBaseDigits
+, fromBaseDigits
 ) where
 
 getBaseDigits :: Integral a => a -> a -> [a]
