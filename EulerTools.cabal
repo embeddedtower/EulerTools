@@ -18,7 +18,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     EulerTools.Timer
                      , EulerTools.Shape
-                     , EulerTools.String
+                     , EulerTools.Permute
                      , EulerTools.Digit
                      , EulerTools.Number
                      , EulerTools.Cipher

@@ -3,8 +3,10 @@ module EulerTools.String
 , isPalindrome
 , mkPalindromes
 , lexN
+, words'
 ) where
 
+import           Data.Char (isLetter)
 import           Data.List (sort)
 
 isPermOf :: Ord a => [a] -> [a] -> Bool
@@ -32,3 +34,9 @@ lexN n ds = (ds !! i) : lexN n' (dropAt i ds)
       a  = fac $ length ds - 1
       i  = div n a
       n' = mod n a
+
+words' :: String -> [String]
+words' [] = []
+words' str@(c:_)
+  | isLetter c = takeWhile isLetter str : words' (dropWhile isLetter str)
+  | otherwise  = words' $ dropWhile (not . isLetter) str

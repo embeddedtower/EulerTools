@@ -21,3 +21,9 @@ toAlphaUpper :: Int -> Char
 toAlphaUpper n
   | n < 1 || n > 26 = error "value out of range"
   | otherwise = chr $ n + 64
+
+words' :: String -> [String]
+words' [] = []
+words' str@(c:_)
+  | isLetter c = takeWhile isLetter str : words' (dropWhile isLetter str)
+  | otherwise  = words' $ dropWhile (not . isLetter) str
