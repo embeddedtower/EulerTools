@@ -1,5 +1,6 @@
 module EulerTools.String
 ( isPermOf
+, rotateN
 , isPalindrome
 , mkPalindromes
 , lexN
@@ -11,6 +12,11 @@ import           Data.List (sort)
 
 isPermOf :: Ord a => [a] -> [a] -> Bool
 isPermOf as bs = sort as == sort bs
+
+rotateN :: [a] -> Int -> [a]
+rotateN as n = drop n' as ++ take n' as
+  where
+    n' = mod n $ length as
 
 isPalindrome :: Eq a => [a] -> Bool
 isPalindrome as = as == reverse as
