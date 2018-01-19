@@ -3,6 +3,7 @@ module EulerTools.Number
 , totient
 , totientFromDivs
 , expBySq
+, pythagoras
 ) where
 
 import Data.List           (group)
@@ -35,3 +36,9 @@ expBySq modulus base =
     ebsWorker _ []     = []
     ebsWorker n (b:bs) | b == 1    = n : ebsWorker (square n) bs
                        | otherwise = 1 : ebsWorker (square n) bs
+
+-- Pythagorean triples
+-- Coprime for m>n, m,n coprime, at least one of m,n even
+
+pythagoras :: Integral a => a -> a -> (a,a)
+pythagoras m n = (m^2 - n^2, 2*m*n)
