@@ -5,7 +5,7 @@ module EulerTools.String
 , lexN
 ) where
 
-import Data.List (sort)
+import           Data.List (sort)
 
 isPermOf :: Ord a => [a] -> [a] -> Bool
 isPermOf as bs = sort as == sort bs

@@ -21,6 +21,7 @@ library
                      , EulerTools.String
                      , EulerTools.Digit
                      , EulerTools.Number
+                     , EulerTools.Cipher
   -- other-modules:
   -- other-extensions:
   build-depends:       base   == 4.*
