@@ -1,5 +1,6 @@
 module EulerTools.Number
 ( countDivisors
+, getDivisors
 , totient
 , totientFromDivs
 , expBySq
@@ -7,7 +8,7 @@ module EulerTools.Number
 , pythagoras3
 ) where
 
-import Data.List           (group)
+import Data.List           (group, sort)
 import Data.Numbers.Primes (primeFactors)
 
 import EulerTools.Digit
@@ -17,6 +18,15 @@ import EulerTools.Digit
 countDivisors :: Integral a => a -> Int
 countDivisors =
   product . map ((+1) . length) . group . primeFactors
+
+mkProducts :: Integral a => [a] -> [a]
+mkProducts = scanl (*) 1
+
+listProduct :: Integral a => [a] -> [a] -> [a]
+listProduct as bs = (*) <$> as <*> bs
+
+getDivisors :: Integral a => a -> [a]
+getDivisors = sort . foldr (listProduct . mkProducts) [1] . group . primeFactors
 
 totient :: Integral a => a -> a
 totient n = n * product (map (-1+) divs) `div` product divs
