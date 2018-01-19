@@ -1,5 +1,6 @@
 module EulerTools.String
 ( isPermOf
+, isNub
 , rotateN
 , isPalindrome
 , mkPalindromes
@@ -8,10 +9,18 @@ module EulerTools.String
 ) where
 
 import           Data.Char (isLetter)
-import           Data.List (sort)
+import           Data.List (sort, nub)
 
 isPermOf :: Ord a => [a] -> [a] -> Bool
 isPermOf as bs = sort as == sort bs
+
+isNub :: Eq a => [a] -> Bool
+isNub l = isNub' l []
+  where
+    isNub' [] _      = True
+    isNub' (y:ys) xs
+       | y `elem` xs = False
+       | otherwise   = isNub' ys (y:xs)
 
 rotateN :: [a] -> Int -> [a]
 rotateN as n = drop n' as ++ take n' as
