@@ -1,6 +1,7 @@
 module EulerTools.String
 ( isPalindrome
 , mkPalindromes
+, lexN
 ) where
 
 isPalindrome :: Eq a => [a] -> Bool
@@ -11,3 +12,17 @@ mkPalindromes b n
   | n == 0    = [[]]
   | n == 1    = [ [k] | k <- [0..b-1] ]
   | otherwise = [ k:p ++ [k] | k <- [0..b-1] , p <- mkPalindromes b (n-2) ]
+
+dropAt :: Int -> [a] -> [a]
+dropAt n as = take n as ++ drop (n+1) as
+
+fac :: Integral a => a -> a
+fac n = product [1..n]
+
+lexN :: Int -> [a] -> [a]
+lexN _ [] = []
+lexN n ds = (ds !! i) : lexN n' (dropAt i ds)
+    where
+      a  = fac $ length ds - 1
+      i  = div n a
+      n' = mod n a
