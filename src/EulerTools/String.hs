@@ -1,8 +1,14 @@
 module EulerTools.String
-( isPalindrome
+( isPermOf
+, isPalindrome
 , mkPalindromes
 , lexN
 ) where
+
+import Data.List (sort)
+
+isPermOf :: Ord a => [a] -> [a] -> Bool
+isPermOf as bs = sort as == sort bs
 
 isPalindrome :: Eq a => [a] -> Bool
 isPalindrome as = as == reverse as
