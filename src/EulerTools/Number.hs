@@ -3,7 +3,8 @@ module EulerTools.Number
 , totient
 , totientFromDivs
 , expBySq
-, pythagoras
+, pythagoras2
+, pythagoras3
 ) where
 
 import Data.List           (group)
@@ -40,5 +41,8 @@ expBySq modulus base =
 -- Pythagorean triples
 -- Coprime for m>n, m,n coprime, at least one of m,n even
 
-pythagoras :: Integral a => a -> a -> (a,a)
-pythagoras m n = (m^2 - n^2, 2*m*n)
+pythagoras2 :: Integral a => a -> a -> (a,a)
+pythagoras2 m n = (m^2 - n^2, 2*m*n)
+
+pythagoras3 :: Integral a => a -> a -> (a,a,a)
+pythagoras3 m n = (m^2 - n^2, 2*m*n, m^2 + n^2)
