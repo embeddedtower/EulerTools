@@ -17,7 +17,7 @@ triangle n = n * (n+1) `div` 2
 isTriangle :: Integral a => a -> Bool
 isTriangle n = n == k * (k+1) `div` 2
   where
-    k = 1 + intRoot (2*n)
+    k = intRoot (2*n)
 
 pentagon :: Integral a => a -> a
 pentagon n = n * (3*n - 1) `div` 2
