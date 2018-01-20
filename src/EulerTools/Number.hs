@@ -67,20 +67,20 @@ intRoot n
   where
     r = intRoot $ div n 4
 
-extGCD :: Integer -> Integer -> (Integer,Integer)
+extGCD :: Integral a => a -> a -> (a,a)
 extGCD a b = extGCDWorker a' b' [1,0]
   where
     a' = max a b
     b' = min a b
 
-extGCDWorker :: Integer -> Integer -> [Integer] -> (Integer,Integer)
+extGCDWorker :: Integral a => a -> a -> [a] -> (a,a)
 extGCDWorker _ _ []       = error "invalid base case"
 extGCDWorker _ _ [_]      = error "invalid base case"
 extGCDWorker a 0 (_:x1:_) = (a,x1)
 extGCDWorker a b xs@(x2:x1:_) =
   extGCDWorker b (mod a b) (x1 - x2 * div a b : xs)
 
-modInverse :: Integer -> Integer -> Maybe Integer
+modInverse :: Integral a => a -> a -> Maybe a
 modInverse m a = case extGCD m (mod a m) of
   (1,b) -> Just $ mod b m
   _     -> Nothing
