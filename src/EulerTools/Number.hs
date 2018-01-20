@@ -6,6 +6,7 @@ module EulerTools.Number
 , expBySq
 , pythagoras2
 , pythagoras3
+, intRoot
 ) where
 
 import Data.List           (group, sort)
@@ -56,3 +57,11 @@ pythagoras2 m n = (m^2 - n^2, 2*m*n)
 
 pythagoras3 :: Integral a => a -> a -> (a,a,a)
 pythagoras3 m n = (m^2 - n^2, 2*m*n, m^2 + n^2)
+
+intRoot :: Integral a => a -> a
+intRoot 0 = 0
+intRoot n
+  | (2*r + 1) ^ 2 > n = 2*r
+  | otherwise         = 2*r + 1
+  where
+    r = intRoot $ div n 4
