@@ -7,6 +7,7 @@ module EulerTools.Number
 , pythagoras2
 , pythagoras3
 , intRoot
+, modInverse
 ) where
 
 import Data.List           (group, sort)
@@ -65,3 +66,21 @@ intRoot n
   | otherwise         = 2*r + 1
   where
     r = intRoot $ div n 4
+
+extGCD :: Integer -> Integer -> (Integer,Integer)
+extGCD a b = extGCDWorker a' b' [1,0]
+  where
+    a' = max a b
+    b' = min a b
+
+extGCDWorker :: Integer -> Integer -> [Integer] -> (Integer,Integer)
+extGCDWorker _ _ []       = error "invalid base case"
+extGCDWorker _ _ [_]      = error "invalid base case"
+extGCDWorker a 0 (_:x1:_) = (a,x1)
+extGCDWorker a b xs@(x2:x1:_) =
+  extGCDWorker b (mod a b) (x1 - x2 * div a b : xs)
+
+modInverse :: Integer -> Integer -> Maybe Integer
+modInverse m a = case extGCD m (mod a m) of
+  (1,b) -> Just $ mod b m
+  _     -> Nothing
