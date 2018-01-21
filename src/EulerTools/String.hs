@@ -6,10 +6,11 @@ module EulerTools.String
 , mkPalindromes
 , lexN
 , words'
+, ints
 ) where
 
-import           Data.Char (isLetter)
-import           Data.List (sort, nub)
+import           Data.Char (isDigit, isLetter)
+import           Data.List (nub, sort)
 
 isPermOf :: Ord a => [a] -> [a] -> Bool
 isPermOf as bs = sort as == sort bs
@@ -55,3 +56,14 @@ words' [] = []
 words' str@(c:_)
   | isLetter c = takeWhile isLetter str : words' (dropWhile isLetter str)
   | otherwise  = words' $ dropWhile (not . isLetter) str
+
+isNumeric :: Char -> Bool
+isNumeric c = c == '-' || isDigit c
+
+ints :: String -> [Int]
+ints str = map read $ go str
+  where
+    go [] = []
+    go (c:cs)
+      | isNumeric c = (c : takeWhile isDigit cs) : go (dropWhile isDigit cs)
+      | otherwise   = go $ dropWhile (not . isNumeric) cs
