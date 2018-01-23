@@ -6,6 +6,7 @@
 
 module EulerTools.BFS
 ( Alphabet(..)
+, ComboMap(..)
 , Recent(..)
 , Solution(..)
 , Soluble(..)
@@ -18,7 +19,7 @@ module EulerTools.BFS
 , Forgettable(..)
 , Forgetful(..)
 , Countable(..)
-, CountsOne(..)
+, CountOne(..)
 , Memorable(..)
 , Heedful(..)
 ) where
@@ -34,31 +35,33 @@ import           EulerTools.Timer
 class Ord a => Alphabet a where
   alphabet :: [a]
 
+type ComboMap t a n = ComboMap t a n
+
 class (Alphabet a, Ord (t a)) => Recent t a where
   update   :: t a -> a -> Maybe (t a)
-  initial  :: Integral n => M.Map (t a) n
+  initial  :: Integral n => ComboMap t a n
 
 -- Make all possible new objects based on one starting object
 
-branch :: (Recent t a, Integral n) => t a -> n -> M.Map (t a) n
+branch :: (Recent t a, Integral n) => t a -> n -> ComboMap t a n
 branch as n = M.fromListWith (+) ((,n) <$> mapMaybe (update as) alphabet)
 
 -- Update a map of counts of equivalent objects with one or more stages of branching
 
-branchAll :: (Recent t a, Integral n) => M.Map (t a) n -> M.Map (t a) n
+branchAll :: (Recent t a, Integral n) => ComboMap t a n -> ComboMap t a n
 branchAll = M.unionsWith (+) . M.foldrWithKey (\ta n ms -> branch ta n : ms) []
 
-branchN :: (Recent t a, Integral n) => Int -> M.Map (t a) n -> M.Map (t a) n
+branchN :: (Recent t a, Integral n) => Int -> ComboMap t a n -> ComboMap t a n
 branchN n mta
   | n <= 0    = mta
   | otherwise = branchN (n-1) $ branchAll mta
 
 -- Count all objects, with or without adjusting totals
 
-total :: (Recent t a, Integral n) => M.Map (t a) n -> n
+total :: (Recent t a, Integral n) => ComboMap t a n -> n
 total = M.foldr (+) 0
 
-totalWith :: (Recent t a, Integral n) => (t a -> n -> n) -> M.Map (t a) n -> n
+totalWith :: (Recent t a, Integral n) => (t a -> n -> n) -> ComboMap t a n -> n
 totalWith f = M.foldrWithKey (\ta n b -> b + f ta n) 0
 
 -- Combinatorial objects with a solved state, e.g a bridge of a certain length
@@ -86,34 +89,34 @@ eitherSolved ta n = if isSolved ta n
 
 -- Check whether a map contains a solved object
 
-searchSolution :: (Soluble t a, Integral n) => M.Map (t a) n -> Solution (t a) n
+searchSolution :: (Soluble t a, Integral n) => ComboMap t a n -> Solution (t a) n
 searchSolution = M.foldMapWithKey solved
 
 -- Branch until a solved object is found
 
-branchSolution :: (Soluble t a, Integral n) => M.Map (t a) n -> Solution (t a) n
+branchSolution :: (Soluble t a, Integral n) => ComboMap t a n -> Solution (t a) n
 branchSolution mta = case searchSolution mta of
   Solved ta n -> Solved ta n
   Continue    -> branchSolution $ branchAll mta
 
-branchUntil :: (Soluble t a, Integral n) => M.Map (t a) n -> M.Map (t a) n
+branchUntil :: (Soluble t a, Integral n) => ComboMap t a n -> ComboMap t a n
 branchUntil mta = case searchSolution mta of
   Solved _ _ -> mta
   Continue   -> branchUntil $ branchAll mta
 
 -- Branch n times, collecting all solved objects
 
-splitSolved :: (Soluble t a, Integral n) => M.Map (t a) n -> (M.Map (t a) n, M.Map (t a) n)
+splitSolved :: (Soluble t a, Integral n) => ComboMap t a n -> (ComboMap t a n, ComboMap t a n)
 splitSolved = M.mapEitherWithKey eitherSolved
 
-allSolvedN :: (Soluble t a, Integral n) => Int -> M.Map (t a) n -> M.Map (t a) n
+allSolvedN :: (Soluble t a, Integral n) => Int -> ComboMap t a n -> ComboMap t a n
 allSolvedN n mta
   | n <= 0    = fst splits
   | otherwise = M.unionWith (+) (fst splits) $ allSolvedN (n-1) (branchAll $ snd splits)
   where
     splits = splitSolved mta
 
-lastSolvedN :: (Soluble t a, Integral n) => Int -> M.Map (t a) n -> M.Map (t a) n
+lastSolvedN :: (Soluble t a, Integral n) => Int -> ComboMap t a n -> ComboMap t a n
 lastSolvedN n mta =
   fst . splitSolved $ branchN n mta
 
@@ -140,21 +143,19 @@ instance Forgettable a => Recent Forgetful a where
 
 class Alphabet a => Countable a where
   memoryC :: a -> Int
-  countC  :: a
+  countC  :: a -> Int
   decideC :: Int -> a -> [a] -> Bool
 
-data CountsOne a = CountOne Int [a] deriving (Eq, Ord, Show)
+data CountOne a = CountOne Int [a] deriving (Eq, Ord, Show)
 
-instance Countable a => Recent CountsOne a where
-  update :: CountsOne a -> a -> Maybe (CountsOne a)
+instance Countable a => Recent CountOne a where
+  update :: CountOne a -> a -> Maybe (CountOne a)
   update (CountOne m as) a =
     if decideC m a as
-      then Just . CountOne m' $ take (memoryC a) (a:as)
+      then Just . CountOne (m + countC a) $ take (memoryC a) (a:as)
       else Nothing
-    where
-      m' = if a == countC then m+1 else m
 
-  initial :: Integral n => M.Map (CountsOne a) n
+  initial :: Integral n => M.Map (CountOne a) n
   initial = M.singleton (CountOne 0 []) 1
 
 data Test2 = A | L | O deriving (Eq, Show, Ord)
@@ -163,26 +164,28 @@ instance Alphabet Test2 where
   alphabet = [A,L,O]
 
 instance Countable Test2 where
-  countC  = L
-  memoryC = const 2
+  countC a = if a == L then 1 else 0
+  memoryC  = const 2
   decideC 1 L _       = False
   decideC _ A (A:A:_) = False
   decideC _ _ _       = True
 
 solve2 :: Int
-solve2 = total $ branchN 30 (initial :: M.Map (CountsOne Test2) Int)
+solve2 = total $ branchN 30 (initial :: M.Map (CountOne Test2) Int)
 
-type Test3 = Int
+newtype Test3 = T3 Int deriving (Eq, Show, Ord)
 
 instance Alphabet Test3 where
-  alphabet = [0..9]
+  alphabet = T3 <$> [0..9]
 
 instance Forgettable Test3 where
   memoryF = const 2
-  decideF n ns = sum (n : ns) <= 9
+  decideF _ []                   = True
+  decideF (T3 n) [T3 n1]         = n+n1 <= 9
+  decideF (T3 n) (T3 n1:T3 n2:_) = n+n1+n2 <= 9
 
 solve3 :: Int
-solve3 = totalWith (\(Forgetful as) n -> if head as == 0 then 0 else n) $
+solve3 = totalWith (\(Forgetful as) n -> if head as == T3 0 then 0 else n) $
   branchN 20 (initial :: M.Map (Forgetful Test3) Int)
 
 -- 'Recent' object which uses each alphabet symbol at most once
